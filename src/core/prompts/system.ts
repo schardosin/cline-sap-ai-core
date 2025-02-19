@@ -1,4 +1,4 @@
-import defaultShell from "default-shell"
+import { getShell } from "../../utils/shell"
 import os from "os"
 import osName from "os-name"
 import { McpHub } from "../../services/mcp/McpHub"
@@ -38,7 +38,7 @@ Always adhere to this format for the tool use to ensure proper parsing and execu
 # Tools
 
 ## execute_command
-Description: Request to execute a CLI command on the system. Use this when you need to perform system operations or run specific commands to accomplish any step in the user's task. You must tailor your command to the user's system and provide a clear explanation of what the command does. Prefer to execute complex CLI commands over creating executable scripts, as they are more flexible and easier to run. Commands will be executed in the current working directory: ${cwd.toPosix()}
+Description: Request to execute a CLI command on the system. Use this when you need to perform system operations or run specific commands to accomplish any step in the user's task. You must tailor your command to the user's system and provide a clear explanation of what the command does. For command chaining, use the appropriate chaining syntax for the user's shell. Prefer to execute complex CLI commands over creating executable scripts, as they are more flexible and easier to run. Commands will be executed in the current working directory: ${cwd.toPosix()}
 Parameters:
 - command: (required) The CLI command to execute. This should be valid for the current operating system. Ensure the command is properly formatted and does not contain any harmful instructions.
 - requires_approval: (required) A boolean indicating whether this command requires explicit user approval before execution in case the user has auto-approve mode enabled. Set to 'true' for potentially impactful operations like installing/uninstalling packages, deleting/overwriting files, system configuration changes, network operations, or any commands that could have unintended side effects. Set to 'false' for safe operations like reading files/directories, running development servers, building projects, and other non-destructive operations.
@@ -331,7 +331,24 @@ ${
 <access_mcp_resource>
 <server_name>weather-server</server_name>
 <uri>weather://san-francisco/current</uri>
-</access_mcp_resource>`
+</access_mcp_resource>
+
+## Example 6: Another example of using an MCP tool (where the server name is a unique identifier such as a URL)
+
+<use_mcp_tool>
+<server_name>github.com/modelcontextprotocol/servers/tree/main/src/github</server_name>
+<tool_name>create_issue</tool_name>
+<arguments>
+{
+  "owner": "octocat",
+  "repo": "hello-world",
+  "title": "Found a bug",
+  "body": "I'm having a problem with this.",
+  "labels": ["bug", "help wanted"],
+  "assignees": ["octocat"]
+}
+</arguments>
+</use_mcp_tool>`
 		: ""
 }
 
@@ -865,9 +882,10 @@ In each user message, the environment_details will specify the current mode. The
 ## What is PLAN MODE?
 
 - While you are usually in ACT MODE, the user may switch to PLAN MODE in order to have a back and forth with you to plan how to best accomplish the task. 
-- When starting in PLAN MODE, depending on the user's request, you may need to do some information gathering e.g. using read_file or search_files to get more context about the task. You may also ask the user clarifying questions to get a better understanding of the task.
-- Once you've gained more context about the user's request, you should architect a detailed plan for how you will accomplish the task.
+- When starting in PLAN MODE, depending on the user's request, you may need to do some information gathering e.g. using read_file or search_files to get more context about the task. You may also ask the user clarifying questions to get a better understanding of the task. You may return mermaid diagrams to visually display your understanding.
+- Once you've gained more context about the user's request, you should architect a detailed plan for how you will accomplish the task. Returning mermaid diagrams may be helpful here as well.
 - Then you might ask the user if they are pleased with this plan, or if they would like to make any changes. Think of this as a brainstorming session where you can discuss the task and plan the best way to accomplish it.
+- If at any point a mermaid diagram would make your plan clearer to help the user quickly see the structure, you are encouraged to include a Mermaid code block in the response.
 - Finally once it seems like you've reached a good plan, ask the user to switch you back to ACT MODE to implement the solution.
 
 ====
@@ -941,7 +959,7 @@ ${
 SYSTEM INFORMATION
 
 Operating System: ${osName()}
-Default Shell: ${defaultShell}
+Default Shell: ${getShell()}
 Home Directory: ${os.homedir().toPosix()}
 Current Working Directory: ${cwd.toPosix()}
 
@@ -957,13 +975,20 @@ You accomplish a given task iteratively, breaking it down into clear steps and w
 4. Once you've completed the user's task, you must use the attempt_completion tool to present the result of the task to the user. You may also provide a CLI command to showcase the result of your task; this can be particularly useful for web development tasks, where you can run e.g. \`open index.html\` to show the website you've built.
 5. The user may provide feedback, which you can use to make improvements and try again. But DO NOT continue in pointless back and forth conversations, i.e. don't end your responses with questions or offers for further assistance.`
 
-export function addUserInstructions(settingsCustomInstructions?: string, clineRulesFileInstructions?: string) {
+export function addUserInstructions(
+	settingsCustomInstructions?: string,
+	clineRulesFileInstructions?: string,
+	clineIgnoreInstructions?: string,
+) {
 	let customInstructions = ""
 	if (settingsCustomInstructions) {
 		customInstructions += settingsCustomInstructions + "\n\n"
 	}
 	if (clineRulesFileInstructions) {
-		customInstructions += clineRulesFileInstructions
+		customInstructions += clineRulesFileInstructions + "\n\n"
+	}
+	if (clineIgnoreInstructions) {
+		customInstructions += clineIgnoreInstructions
 	}
 
 	return `

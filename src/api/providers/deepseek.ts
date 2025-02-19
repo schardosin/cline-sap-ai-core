@@ -1,5 +1,6 @@
 import { Anthropic } from "@anthropic-ai/sdk"
 import OpenAI from "openai"
+import { withRetry } from "../retry"
 import { ApiHandler } from "../"
 import { ApiHandlerOptions, DeepSeekModelId, ModelInfo, deepSeekDefaultModelId, deepSeekModels } from "../../shared/api"
 import { convertToOpenAiMessages } from "../transform/openai-format"
@@ -18,6 +19,7 @@ export class DeepSeekHandler implements ApiHandler {
 		})
 	}
 
+	@withRetry()
 	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
 		const model = this.getModel()
 
@@ -51,7 +53,7 @@ export class DeepSeekHandler implements ApiHandler {
 				}
 			}
 
-			if ("reasoning_content" in delta && delta.reasoning_content) {
+			if (delta && "reasoning_content" in delta && delta.reasoning_content) {
 				yield {
 					type: "reasoning",
 					reasoning: (delta.reasoning_content as string | undefined) || "",
