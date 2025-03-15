@@ -1350,17 +1350,29 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 					<VSCodeTextField
 						value={apiConfiguration?.sapAiCoreClientId || ""}
 						style={{ width: "100%" }}
+						type="password"
 						onInput={handleInputChange("sapAiCoreClientId")}
 						placeholder="Enter AI Core Client Id...">
 						<span style={{ fontWeight: 500 }}>AI Core Client Id</span>
 					</VSCodeTextField>
+					{apiConfiguration?.sapAiCoreClientId && (
+						<p style={{ fontSize: "12px", color: "var(--vscode-descriptionForeground)" }}>
+							Client Id is set. To change it, please re-enter the value.
+						</p>
+					)}
 					<VSCodeTextField
-						value={apiConfiguration?.sapAiCoreClientSecret || ""}
+						value={apiConfiguration?.sapAiCoreClientSecret ? "********" : ""}
 						style={{ width: "100%" }}
+						type="password"
 						onInput={handleInputChange("sapAiCoreClientSecret")}
 						placeholder="Enter AI Core Client Secret...">
 						<span style={{ fontWeight: 500 }}>AI Core Client Secret</span>
 					</VSCodeTextField>
+					{apiConfiguration?.sapAiCoreClientSecret && (
+						<p style={{ fontSize: "12px", color: "var(--vscode-descriptionForeground)" }}>
+							Client Secret is set. To change it, please re-enter the value.
+						</p>
+					)}
 					<VSCodeTextField
 						value={apiConfiguration?.sapAiCoreBaseUrl || ""}
 						style={{ width: "100%" }}

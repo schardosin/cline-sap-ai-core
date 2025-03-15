@@ -964,6 +964,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 				case "openai-native":
 				case "qwen":
 				case "deepseek":
+				case "sapaicore":
 					await this.updateGlobalState("previousModeModelId", apiConfiguration.apiModelId)
 					break
 				case "openrouter":
@@ -1005,6 +1006,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 					case "openai-native":
 					case "qwen":
 					case "deepseek":
+					case "sapaicore":
 						await this.updateGlobalState("apiModelId", newModelId)
 						break
 					case "openrouter":
