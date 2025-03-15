@@ -127,7 +127,7 @@ export class SapAiCoreHandler implements ApiHandler {
 			"anthropic--claude-3-opus",
 		]
 
-		const openAIModels = ["gpt-4o", "gpt-4", "gpt-4o-mini"]
+		const openAIModels = ["gpt-4o", "gpt-4", "gpt-4o-mini", "o1", "o3-mini"]
 
 		let url: string
 		let payload: any
@@ -146,7 +146,7 @@ export class SapAiCoreHandler implements ApiHandler {
 				...convertToOpenAiMessages(messages),
 			]
 
-			url = `${this.options.sapAiCoreBaseUrl}/inference/deployments/${deploymentId}/chat/completions?api-version=2023-05-15`
+			url = `${this.options.sapAiCoreBaseUrl}/inference/deployments/${deploymentId}/chat/completions?api-version=2024-12-01-preview`
 			payload = {
 				stream: true,
 				messages: openAiMessages,
@@ -156,6 +156,16 @@ export class SapAiCoreHandler implements ApiHandler {
 				presence_penalty: 0,
 				stop: null,
 				stream_options: { include_usage: true },
+			}
+
+			if (model.id === "o1" || model.id === "o3-mini") {
+				delete payload.max_tokens
+				delete payload.temperature
+			}
+
+			if (model.id === "o3-mini") {
+				delete payload.stream
+				delete payload.stream_options
 			}
 		} else {
 			throw new Error(`Unsupported model: ${model.id}`)
@@ -167,13 +177,61 @@ export class SapAiCoreHandler implements ApiHandler {
 				responseType: "stream",
 			})
 
-			if (openAIModels.includes(model.id)) {
+			if (model.id === "o3-mini") {
+				const response = await axios.post(url, JSON.stringify(payload, null, 2), { headers })
+
+				// Yield the usage information
+				if (response.data.usage) {
+					yield {
+						type: "usage",
+						inputTokens: response.data.usage.prompt_tokens,
+						outputTokens: response.data.usage.completion_tokens,
+					}
+				}
+
+				// Yield the content
+				if (response.data.choices && response.data.choices.length > 0) {
+					yield {
+						type: "text",
+						text: response.data.choices[0].message.content,
+					}
+				}
+
+				// Final usage yield
+				if (response.data.usage) {
+					yield {
+						type: "usage",
+						inputTokens: response.data.usage.prompt_tokens,
+						outputTokens: response.data.usage.completion_tokens,
+					}
+				}
+			} else if (openAIModels.includes(model.id)) {
 				yield* this.streamCompletionGPT(response.data, model)
 			} else {
 				yield* this.streamCompletion(response.data, model)
 			}
 		} catch (error) {
-			console.error("Error creating message:", error)
+			if (error.response) {
+				// The request was made and the server responded with a status code
+				// that falls out of the range of 2xx
+				console.error("Error status:", error.response.status)
+				console.error("Error data:", error.response.data)
+				console.error("Error headers:", error.response.headers)
+
+				if (error.response.status === 404) {
+					console.error("404 Error reason:", error.response.data)
+					throw new Error(`404 Not Found: ${error.response.data}`)
+				}
+			} else if (error.request) {
+				// The request was made but no response was received
+				console.error("Error request:", error.request)
+				throw new Error("No response received from server")
+			} else {
+				// Something happened in setting up the request that triggered an Error
+				console.error("Error message:", error.message)
+				throw new Error(`Error setting up request: ${error.message}`)
+			}
+
 			throw new Error("Failed to create message")
 		}
 	}
