@@ -46,7 +46,7 @@ import { getApiMetrics } from "../shared/getApiMetrics"
 import { HistoryItem } from "../shared/HistoryItem"
 import { ClineAskResponse, ClineCheckpointRestore } from "../shared/WebviewMessage"
 import { calculateApiCostAnthropic } from "../utils/cost"
-import { fileExistsAtPath } from "../utils/fs"
+import { fileExistsAtPath, isDirectory } from "../utils/fs"
 import { arePathsEqual, getReadablePath } from "../utils/path"
 import { fixModelHtmlEscaping, removeInvalidChars } from "../utils/string"
 import { AssistantMessageContent, parseAssistantMessage, ToolParamName, ToolUseName } from "./assistant-message"
@@ -62,6 +62,7 @@ import { ClineHandler } from "../api/providers/cline"
 import { ClineProvider, GlobalFileNames } from "./webview/ClineProvider"
 import { DEFAULT_LANGUAGE_SETTINGS, getLanguageKey, LanguageDisplay, LanguageKey } from "../shared/Languages"
 import { telemetryService } from "../services/telemetry/TelemetryService"
+import pTimeout from "p-timeout"
 
 const cwd = vscode.workspace.workspaceFolders?.map((folder) => folder.uri.fsPath).at(0) ?? path.join(os.homedir(), "Desktop") // may or may not exist but fs checking existence would immediately ask for permission which would be bad UX, need to come up with a better solution
 
@@ -294,13 +295,12 @@ export class Cline {
 				break
 			case "taskAndWorkspace":
 			case "workspace":
-				if (!this.checkpointTracker) {
+				if (!this.checkpointTracker && !this.checkpointTrackerErrorMessage) {
 					try {
 						this.checkpointTracker = await CheckpointTracker.create(
 							this.taskId,
 							this.providerRef.deref()?.context.globalStorageUri.fsPath,
 						)
-						this.checkpointTrackerErrorMessage = undefined
 					} catch (error) {
 						const errorMessage = error instanceof Error ? error.message : "Unknown error"
 						console.error("Failed to initialize checkpoint tracker:", errorMessage)
@@ -410,13 +410,12 @@ export class Cline {
 		}
 
 		// TODO: handle if this is called from outside original workspace, in which case we need to show user error message we cant show diff outside of workspace?
-		if (!this.checkpointTracker) {
+		if (!this.checkpointTracker && !this.checkpointTrackerErrorMessage) {
 			try {
 				this.checkpointTracker = await CheckpointTracker.create(
 					this.taskId,
 					this.providerRef.deref()?.context.globalStorageUri.fsPath,
 				)
-				this.checkpointTrackerErrorMessage = undefined
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : "Unknown error"
 				console.error("Failed to initialize checkpoint tracker:", errorMessage)
@@ -440,21 +439,30 @@ export class Cline {
 		try {
 			if (seeNewChangesSinceLastTaskCompletion) {
 				// Get last task completed
-				const lastTaskCompletedMessage = findLast(
+				const lastTaskCompletedMessageCheckpointHash = findLast(
 					this.clineMessages.slice(0, messageIndex),
 					(m) => m.say === "completion_result",
-				) // ask is only used to relinquish control, its the last say we care about
+				)?.lastCheckpointHash // ask is only used to relinquish control, its the last say we care about
 				// if undefined, then we get diff from beginning of git
 				// if (!lastTaskCompletedMessage) {
 				// 	console.error("No previous task completion message found")
 				// 	return
 				// }
+				// This value *should* always exist
+				const firstCheckpointMessageCheckpointHash = this.clineMessages.find(
+					(m) => m.say === "checkpoint_created",
+				)?.lastCheckpointHash
+
+				const previousCheckpointHash = lastTaskCompletedMessageCheckpointHash || firstCheckpointMessageCheckpointHash // either use the diff between the first checkpoint and the task completion, or the diff between the latest two task completions
+
+				if (!previousCheckpointHash) {
+					vscode.window.showErrorMessage("Unexpected error: No checkpoint hash found")
+					relinquishButton()
+					return
+				}
 
 				// Get changed files between current state and commit
-				changedFiles = await this.checkpointTracker?.getDiffSet(
-					lastTaskCompletedMessage?.lastCheckpointHash, // if undefined, then we get diff from beginning of git history, AKA when the task was started
-					hash,
-				)
+				changedFiles = await this.checkpointTracker?.getDiffSet(previousCheckpointHash, hash)
 				if (!changedFiles?.length) {
 					vscode.window.showInformationMessage("No changes found")
 					relinquishButton()
@@ -517,13 +525,12 @@ export class Cline {
 			return false
 		}
 
-		if (!this.checkpointTracker) {
+		if (!this.checkpointTracker && !this.checkpointTrackerErrorMessage) {
 			try {
 				this.checkpointTracker = await CheckpointTracker.create(
 					this.taskId,
 					this.providerRef.deref()?.context.globalStorageUri.fsPath,
 				)
-				this.checkpointTrackerErrorMessage = undefined
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : "Unknown error"
 				console.error("Failed to initialize checkpoint tracker:", errorMessage)
@@ -535,12 +542,26 @@ export class Cline {
 		const lastTaskCompletedMessage = findLast(this.clineMessages.slice(0, messageIndex), (m) => m.say === "completion_result")
 
 		try {
-			// Get changed files between current state and commit
-			const changedFiles = await this.checkpointTracker?.getDiffSet(
-				lastTaskCompletedMessage?.lastCheckpointHash, // if undefined, then we get diff from beginning of git history, AKA when the task was started
-				hash,
-			)
-			const changedFilesCount = changedFiles?.length || 0
+			// Get last task completed
+			const lastTaskCompletedMessageCheckpointHash = lastTaskCompletedMessage?.lastCheckpointHash // ask is only used to relinquish control, its the last say we care about
+			// if undefined, then we get diff from beginning of git
+			// if (!lastTaskCompletedMessage) {
+			// 	console.error("No previous task completion message found")
+			// 	return
+			// }
+			// This value *should* always exist
+			const firstCheckpointMessageCheckpointHash = this.clineMessages.find(
+				(m) => m.say === "checkpoint_created",
+			)?.lastCheckpointHash
+
+			const previousCheckpointHash = lastTaskCompletedMessageCheckpointHash || firstCheckpointMessageCheckpointHash // either use the diff between the first checkpoint and the task completion, or the diff between the latest two task completions
+
+			if (!previousCheckpointHash) {
+				return false
+			}
+
+			// Get count of changed files between current state and commit
+			const changedFilesCount = (await this.checkpointTracker?.getDiffCount(previousCheckpointHash, hash)) || 0
 			if (changedFilesCount > 0) {
 				return true
 			}
@@ -1272,13 +1293,33 @@ export class Cline {
 		const clineRulesFilePath = path.resolve(cwd, GlobalFileNames.clineRules)
 		let clineRulesFileInstructions: string | undefined
 		if (await fileExistsAtPath(clineRulesFilePath)) {
-			try {
-				const ruleFileContent = (await fs.readFile(clineRulesFilePath, "utf8")).trim()
-				if (ruleFileContent) {
-					clineRulesFileInstructions = `# .clinerules\n\nThe following is provided by a root-level .clinerules file where the user has specified instructions for this working directory (${cwd.toPosix()})\n\n${ruleFileContent}`
+			if (await isDirectory(clineRulesFilePath)) {
+				try {
+					// Read all files in the .clinerules/ directory.
+					const ruleFiles = await fs
+						.readdir(clineRulesFilePath, { withFileTypes: true, recursive: true })
+						.then((files) => files.filter((file) => file.isFile()))
+						.then((files) => files.map((file) => path.resolve(file.parentPath, file.name)))
+					const ruleFileContent = await Promise.all(
+						ruleFiles.map(async (file) => {
+							const ruleFilePath = path.resolve(clineRulesFilePath, file)
+							const ruleFilePathRelative = path.relative(cwd, ruleFilePath)
+							return `${ruleFilePathRelative}\n` + (await fs.readFile(ruleFilePath, "utf8")).trim()
+						}),
+					).then((contents) => contents.join("\n\n"))
+					clineRulesFileInstructions = `# .clinerules/\n\nThe following is provided by a root-level .clinerules/ directory where the user has specified instructions for this working directory (${cwd.toPosix()})\n\n${ruleFileContent}`
+				} catch {
+					console.error(`Failed to read .clinerules directory at ${clineRulesFilePath}`)
 				}
-			} catch {
-				console.error(`Failed to read .clinerules file at ${clineRulesFilePath}`)
+			} else {
+				try {
+					const ruleFileContent = (await fs.readFile(clineRulesFilePath, "utf8")).trim()
+					if (ruleFileContent) {
+						clineRulesFileInstructions = `# .clinerules\n\nThe following is provided by a root-level .clinerules file where the user has specified instructions for this working directory (${cwd.toPosix()})\n\n${ruleFileContent}`
+					}
+				} catch {
+					console.error(`Failed to read .clinerules file at ${clineRulesFilePath}`)
+				}
 			}
 		}
 
@@ -1703,7 +1744,7 @@ export class Cline {
 												`This is likely because the SEARCH block content doesn't match exactly with what's in the file, or if you used multiple SEARCH/REPLACE blocks they may not have been in the order they appear in the file.\n\n` +
 												`The file was reverted to its original state:\n\n` +
 												`<file_content path="${relPath.toPosix()}">\n${this.diffViewProvider.originalContent}\n</file_content>\n\n` +
-												`Try again with a more precise SEARCH block.\n(If you keep running into this error, you may use the write_to_file tool as a workaround.)`,
+												`Try again with fewer/more precise SEARCH blocks.\n(If you run into this error two times in a row, you may use the write_to_file tool as a fallback.)`,
 										),
 									)
 									await this.diffViewProvider.revertChanges()
@@ -3040,13 +3081,16 @@ export class Cline {
 		// use this opportunity to initialize the checkpoint tracker (can be expensive to initialize in the constructor)
 		// FIXME: right now we're letting users init checkpoints for old tasks, but this could be a problem if opening a task in the wrong workspace
 		// isNewTask &&
-		if (!this.checkpointTracker) {
+		if (!this.checkpointTracker && !this.checkpointTrackerErrorMessage) {
 			try {
-				this.checkpointTracker = await CheckpointTracker.create(
-					this.taskId,
-					this.providerRef.deref()?.context.globalStorageUri.fsPath,
+				this.checkpointTracker = await pTimeout(
+					CheckpointTracker.create(this.taskId, this.providerRef.deref()?.context.globalStorageUri.fsPath),
+					{
+						milliseconds: 15_000,
+						message:
+							"Checkpoints taking too long to initialize. Consider re-opening Cline in a project that uses git, or disabling checkpoints.",
+					},
 				)
-				this.checkpointTrackerErrorMessage = undefined
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : "Unknown error"
 				console.error("Failed to initialize checkpoint tracker:", errorMessage)
