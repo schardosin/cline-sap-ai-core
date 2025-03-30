@@ -1,5 +1,6 @@
 import { PostHog } from "posthog-node"
 import * as vscode from "vscode"
+import { version as extensionVersion } from "../../../package.json"
 
 /**
  * PostHogClient handles telemetry event tracking for the Cline extension
@@ -31,6 +32,8 @@ class PostHogClient {
 			HISTORICAL_LOADED: "task.historical_loaded",
 			// Tracks when the retry button is clicked for failed operations
 			RETRY_CLICKED: "task.retry_clicked",
+			// Tracks when a diff edit (replace_in_file) operation fails
+			DIFF_EDIT_FAILED: "task.diff_edit_failed",
 		},
 		// UI interaction events for tracking user engagement
 		UI: {
@@ -65,6 +68,8 @@ class PostHogClient {
 	private distinctId: string = vscode.env.machineId
 	/** Whether telemetry is currently enabled based on user and VSCode settings */
 	private telemetryEnabled: boolean = false
+	/** Current version of the extension */
+	private readonly version: string = extensionVersion
 
 	/**
 	 * Private constructor to enforce singleton pattern
@@ -120,7 +125,12 @@ class PostHogClient {
 	public capture(event: { event: string; properties?: any }): void {
 		// Only send events if telemetry is enabled
 		if (this.telemetryEnabled) {
-			this.client.capture({ distinctId: this.distinctId, event: event.event, properties: event.properties })
+			// Include extension version in all event properties
+			const propertiesWithVersion = {
+				...event.properties,
+				extension_version: this.version,
+			}
+			this.client.capture({ distinctId: this.distinctId, event: event.event, properties: propertiesWithVersion })
 		}
 	}
 
@@ -250,13 +260,19 @@ class PostHogClient {
 	 * Records interactions with the git-based checkpoint system
 	 * @param taskId Unique identifier for the task
 	 * @param action The type of checkpoint action
+	 * @param durationMs Optional duration of the operation in milliseconds
 	 */
-	public captureCheckpointUsage(taskId: string, action: "shadow_git_initialized" | "commit_created" | "restored") {
+	public captureCheckpointUsage(
+		taskId: string,
+		action: "shadow_git_initialized" | "commit_created" | "restored" | "diff_generated",
+		durationMs?: number,
+	) {
 		this.capture({
 			event: PostHogClient.EVENTS.TASK.CHECKPOINT_USED,
 			properties: {
 				taskId,
 				action,
+				durationMs,
 			},
 		})
 	}
@@ -359,6 +375,21 @@ class PostHogClient {
 			event: PostHogClient.EVENTS.UI.TASK_POPPED,
 			properties: {
 				taskId,
+			},
+		})
+	}
+
+	/**
+	 * Records when a diff edit (replace_in_file) operation fails
+	 * @param taskId Unique identifier for the task
+	 * @param errorType Type of error that occurred (e.g., "search_not_found", "invalid_format")
+	 */
+	public captureDiffEditFailure(taskId: string, errorType?: string) {
+		this.capture({
+			event: PostHogClient.EVENTS.TASK.DIFF_EDIT_FAILED,
+			properties: {
+				taskId,
+				errorType,
 			},
 		})
 	}
