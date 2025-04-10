@@ -1184,6 +1184,11 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			thinkingBudgetTokens,
 			clineApiKey,
 			sambanovaApiKey,
+			sapAiCoreClientId,
+			sapAiCoreClientSecret,
+			sapAiCoreTokenUrl,
+			sapAiCoreBaseUrl,
+			sapAiResourceGroup,
 		} = apiConfiguration
 		await this.updateGlobalState("apiProvider", apiProvider)
 		await this.updateGlobalState("apiModelId", apiModelId)
@@ -1234,6 +1239,11 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 		await this.updateGlobalState("thinkingBudgetTokens", thinkingBudgetTokens)
 		await this.storeSecret("clineApiKey", clineApiKey)
 		await this.storeSecret("sambanovaApiKey", sambanovaApiKey)
+		await this.storeSecret("sapAiCoreClientId", sapAiCoreClientId)
+		await this.storeSecret("sapAiCoreClientSecret", sapAiCoreClientSecret)
+		await this.updateGlobalState("sapAiCoreTokenUrl", sapAiCoreTokenUrl)
+		await this.updateGlobalState("sapAiCoreBaseUrl", sapAiCoreBaseUrl)
+		await this.updateGlobalState("sapAiResourceGroup", sapAiResourceGroup)
 		if (this.cline) {
 			this.cline.api = buildApiHandler(apiConfiguration)
 		}
