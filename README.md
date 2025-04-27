@@ -14,6 +14,7 @@ While the original Cline extension offers excellent functionality, the maintaine
 
 ## Supported Models
 
+- Claude 3.7 Sonnet
 - Claude 3.5 Sonnet
 - Claude 3 Sonnet 
 - Claude 3 Haiku
