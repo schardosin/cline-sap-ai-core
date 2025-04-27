@@ -139,24 +139,24 @@ export class SapAiCoreHandler implements ApiHandler {
 			if (model.id === "anthropic--claude-3.7-sonnet") {
 				url = `${this.options.sapAiCoreBaseUrl}/inference/deployments/${deploymentId}/converse-stream`
 				payload = {
-				  inferenceConfig: {
-					maxTokens: model.info.maxTokens,
-					temperature: 0.0,
-				  },
-				  system: systemPrompt ? [{ text: systemPrompt }] : undefined,
-				  messages: messages.map((m: any) => ({
-					role: m.role,
-					content: m.content,
-				  })),
-				};
-			  } else {
+					inferenceConfig: {
+						maxTokens: model.info.maxTokens,
+						temperature: 0.0,
+					},
+					system: systemPrompt ? [{ text: systemPrompt }] : undefined,
+					messages: messages.map((m: any) => ({
+						role: m.role,
+						content: m.content,
+					})),
+				}
+			} else {
 				payload = {
-				  max_tokens: model.info.maxTokens,
-				  system: systemPrompt,
-				  messages,
-				  anthropic_version: "bedrock-2023-05-31",
-				};
-			  }
+					max_tokens: model.info.maxTokens,
+					system: systemPrompt,
+					messages,
+					anthropic_version: "bedrock-2023-05-31",
+				}
+			}
 		} else if (openAIModels.includes(model.id)) {
 			let openAiMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
 				{ role: "system", content: systemPrompt },
@@ -314,75 +314,74 @@ export class SapAiCoreHandler implements ApiHandler {
 	): AsyncGenerator<any, void, unknown> {
 		function toStrictJson(str: string): string {
 			// Wrap it in parentheses so JS will treat it as an expression
-			const obj = (new Function('return ' + str))();
-			return JSON.stringify(obj);
-		  }
+			const obj = new Function("return " + str)()
+			return JSON.stringify(obj)
+		}
 
-		let usage = { input_tokens: 0, output_tokens: 0 };
-	
+		let usage = { input_tokens: 0, output_tokens: 0 }
+
 		try {
 			// Iterate over the stream and process each chunk
 			for await (const chunk of stream) {
-				const lines = chunk.toString().split("\n").filter(Boolean);
-	
+				const lines = chunk.toString().split("\n").filter(Boolean)
+
 				for (const line of lines) {
 					if (line.startsWith("data: ")) {
-						const jsonData = line.slice(6);
-	
+						const jsonData = line.slice(6)
+
 						try {
 							// Parse the incoming JSON data from the stream
-							const data = JSON.parse(toStrictJson(jsonData));
-							console.log("Received data:", data);
-	
+							const data = JSON.parse(toStrictJson(jsonData))
+							console.log("Received data:", data)
+
 							// Handle metadata (token usage)
 							if (data.metadata?.usage) {
-								const inputTokens = data.metadata.usage.inputTokens || 0;
-								const outputTokens = data.metadata.usage.outputTokens || 0;
-	
+								const inputTokens = data.metadata.usage.inputTokens || 0
+								const outputTokens = data.metadata.usage.outputTokens || 0
+
 								yield {
 									type: "usage",
 									inputTokens,
 									outputTokens,
-								};
+								}
 							}
-		
+
 							// Handle content block delta (text generation)
 							if (data.contentBlockDelta) {
 								if (data.contentBlockDelta?.delta?.text) {
 									yield {
 										type: "text",
 										text: data.contentBlockDelta.delta.text,
-									};
+									}
 								}
-	
+
 								// Handle reasoning content if present
 								if (data.contentBlockDelta?.delta?.reasoningContent?.text) {
 									yield {
 										type: "reasoning",
 										reasoning: data.contentBlockDelta.delta.reasoningContent.text,
-									};
+									}
 								}
 							}
-	
 						} catch (error) {
-							console.error("Failed to parse JSON data:", error);
+							console.error("Failed to parse JSON data:", error)
 							yield {
 								type: "text",
 								text: `[ERROR] Failed to parse response data: ${error instanceof Error ? error.message : String(error)}`,
-							};
+							}
 						}
 					}
 				}
 			}
 		} catch (error) {
-			console.error("Error streaming completion:", error);
+			console.error("Error streaming completion:", error)
 			yield {
 				type: "text",
 				text: `[ERROR] Failed to process stream: ${error instanceof Error ? error.message : String(error)}`,
-			};
+			}
 		}
 	}
-				
+
 	private async *streamCompletionGPT(
 		stream: any,
 		model: { id: SapAiCoreModelId; info: ModelInfo },
