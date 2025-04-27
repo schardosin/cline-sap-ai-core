@@ -1438,6 +1438,14 @@ export const sambanovaModels = {
 export type SapAiCoreModelId = keyof typeof sapAiCoreModels
 export const sapAiCoreDefaultModelId: SapAiCoreModelId = "anthropic--claude-3.5-sonnet"
 export const sapAiCoreModels = {
+	"anthropic--claude-3.7-sonnet": {
+		maxTokens: 8192,
+		contextWindow: 200_000,
+		supportsImages: true,
+		supportsPromptCache: false,
+		inputPrice: 3.0,
+		outputPrice: 15.0,
+	},
 	"anthropic--claude-3.5-sonnet": {
 		maxTokens: 8192,
 		contextWindow: 200_000,
