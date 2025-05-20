@@ -1,10 +1,11 @@
 import { Anthropic } from "@anthropic-ai/sdk"
-import { ApiHandler } from "../"
-import { ApiHandlerOptions, ModelInfo, SapAiCoreModelId, sapAiCoreModels, sapAiCoreDefaultModelId } from "../../shared/api"
-import { ApiStream } from "../transform/stream"
-import { convertToOpenAiMessages } from "../transform/openai-format"
-import OpenAI from "openai"
 import axios from "axios"
+import OpenAI from "openai"
+import { ApiHandler } from "../"
+import { ApiHandlerOptions, ModelInfo, sapAiCoreDefaultModelId, SapAiCoreModelId, sapAiCoreModels } from "../../shared/api"
+import { convertAnthropicMessagesToBedrock } from "../transform/bedrock-format"
+import { convertToOpenAiMessages } from "../transform/openai-format"
+import { ApiStream } from "../transform/stream"
 
 interface Deployment {
 	id: string
@@ -144,10 +145,7 @@ export class SapAiCoreHandler implements ApiHandler {
 						temperature: 0.0,
 					},
 					system: systemPrompt ? [{ text: systemPrompt }] : undefined,
-					messages: messages.map((m: any) => ({
-						role: m.role,
-						content: m.content,
-					})),
+					messages: convertAnthropicMessagesToBedrock(messages),
 				}
 			} else {
 				payload = {
