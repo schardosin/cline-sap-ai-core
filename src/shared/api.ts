@@ -1478,6 +1478,15 @@ export const sapAiCoreModels = {
 		inputPrice: 3.0,
 		outputPrice: 15.0,
 	},
+	"gpt-4.1": {
+		maxTokens: 32_768,
+		contextWindow: 1_047_576,
+		supportsImages: true,
+		supportsPromptCache: true,
+		inputPrice: 2,
+		outputPrice: 8,
+		cacheReadsPrice: 0.5,
+	},
 	"gpt-4o": {
 		maxTokens: 4096,
 		contextWindow: 200_000,
