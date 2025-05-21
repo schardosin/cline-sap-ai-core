@@ -1553,7 +1553,17 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							{selectedProvider === "sambanova" && createDropdown(sambanovaModels)}
 							{selectedProvider === "sapaicore" &&
 								createDropdown(
-									Object.keys(sapAiCoreDeployments).length > 0 ? sapAiCoreDeployments : sapAiCoreModels,
+									Object.keys(sapAiCoreDeployments).length > 0
+										? Object.keys(sapAiCoreDeployments)
+												.filter((key) => key in sapAiCoreModels)
+												.reduce(
+													(filtered, key) => {
+														filtered[key] = sapAiCoreDeployments[key]
+														return filtered
+													},
+													{} as Record<string, ModelInfo>,
+												)
+										: sapAiCoreModels,
 								)}
 						</DropdownContainer>
 

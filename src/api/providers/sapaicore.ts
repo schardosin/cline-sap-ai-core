@@ -128,7 +128,7 @@ export class SapAiCoreHandler implements ApiHandler {
 			"anthropic--claude-3-opus",
 		]
 
-		const openAIModels = ["gpt-4o", "gpt-4", "gpt-4o-mini", "gpt-4.1", "o1", "o3-mini"]
+		const openAIModels = ["gpt-4o", "gpt-4", "gpt-4o-mini", "o1", "o3-mini"]
 
 		let url: string
 		let payload: any
