@@ -11,3 +11,7 @@ tmp
 pnpm-lock.yaml
 
 .clineignore
+
+.idea
+.history
+**/.lh

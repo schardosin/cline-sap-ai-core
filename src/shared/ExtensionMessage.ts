@@ -28,6 +28,8 @@ export interface ExtensionMessage {
 		| "relinquishControl"
 		| "vsCodeLmModels"
 		| "requestVsCodeLmModels"
+		| "requestSapAiCoreDeployments"
+		| "sapAiCoreDeployments"
 		| "authCallback"
 		| "mcpMarketplaceCatalog"
 		| "mcpDownloadDetails"
@@ -60,6 +62,14 @@ export interface ExtensionMessage {
 	partialMessage?: ClineMessage
 	openRouterModels?: Record<string, ModelInfo>
 	openAiModels?: string[]
+	sapAiCoreDeployments?: Record<string, ModelInfo>
+	sapAiCoreConfig?: {
+		clientId: string
+		clientSecret: string
+		baseUrl: string
+		tokenUrl: string
+		resourceGroup: string
+	}
 	mcpServers?: McpServer[]
 	customToken?: string
 	mcpMarketplaceCatalog?: McpMarketplaceCatalog

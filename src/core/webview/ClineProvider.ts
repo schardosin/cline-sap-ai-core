@@ -647,6 +647,11 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 						const vsCodeLmModels = await this.getVsCodeLmModels()
 						this.postMessageToWebview({ type: "vsCodeLmModels", vsCodeLmModels })
 						break
+					case "requestSapAiCoreDeployments":
+						if (message.sapAiCoreConfig) {
+							await this.handleSapAiCoreDeploymentsRequest(message.sapAiCoreConfig)
+						}
+						break
 					case "refreshOpenRouterModels":
 						await this.refreshOpenRouterModels()
 						break
@@ -1313,6 +1318,75 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 		} catch (error) {
 			console.error("Error fetching VS Code LM models:", error)
 			return []
+		}
+	}
+
+	// SAP AI Core
+	async handleSapAiCoreDeploymentsRequest(config: {
+		clientId: string
+		clientSecret: string
+		baseUrl: string
+		tokenUrl: string
+		resourceGroup: string
+	}) {
+		try {
+			// Create a temporary instance of SapAiCoreHandler to fetch deployments
+			const { SapAiCoreHandler } = await import("../../api/providers/sapaicore")
+			const handler = new SapAiCoreHandler({
+				sapAiCoreClientId: config.clientId,
+				sapAiCoreClientSecret: config.clientSecret,
+				sapAiCoreBaseUrl: config.baseUrl,
+				sapAiCoreTokenUrl: config.tokenUrl,
+				sapAiResourceGroup: config.resourceGroup,
+			})
+
+			// Use the private method with reflection to access it
+			const getAiCoreDeployments = (handler as any).getAiCoreDeployments.bind(handler)
+			const deployments = await getAiCoreDeployments()
+
+			// Convert deployments to ModelInfo format
+			const deploymentModels: Record<string, ModelInfo> = {}
+
+			for (const deployment of deployments) {
+				// Extract model name from deployment name (e.g., "anthropic--claude-3.5-sonnet:1.0")
+				const modelName = deployment.name.split(":")[0]
+
+				// Check if this model exists in the predefined sapAiCoreModels
+				const { sapAiCoreModels } = await import("../../shared/api")
+
+				// Find a matching model in the predefined models
+				const matchingModelKey = Object.keys(sapAiCoreModels).find((key) =>
+					modelName.toLowerCase().includes(key.toLowerCase()),
+				)
+
+				if (matchingModelKey) {
+					// Use the predefined model info but with the deployment ID as the key
+					deploymentModels[modelName] = {
+						...sapAiCoreModels[matchingModelKey as keyof typeof sapAiCoreModels],
+					}
+				} else {
+					// Default model info if no match found
+					deploymentModels[modelName] = {
+						maxTokens: 4096,
+						contextWindow: 200_000,
+						supportsImages: true,
+						supportsPromptCache: false,
+						inputPrice: 3.0,
+						outputPrice: 15.0,
+					}
+				}
+			}
+
+			// Send the deployments to the webview
+			await this.postMessageToWebview({
+				type: "sapAiCoreDeployments",
+				sapAiCoreDeployments: deploymentModels,
+			})
+
+			return deploymentModels
+		} catch (error) {
+			console.error("Error fetching SAP AI Core deployments:", error)
+			return {}
 		}
 	}
 
