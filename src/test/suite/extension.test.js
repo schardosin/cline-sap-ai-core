@@ -24,15 +24,22 @@ describe("Extension Tests", function () {
 	})
 
 	it("should activate extension successfully", async () => {
+		// Get the extension by reading package.json to construct the ID
+		const fs = require("fs")
+		const path = require("path")
+		const packageJsonPath = path.join(__dirname, "..", "..", "..", "package.json")
+		const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"))
+		const extensionId = `${packageJson.publisher}.${packageJson.name}`
+
 		// Get the extension
-		const extension = vscode.extensions.getExtension("schardosin.cline-for-sap-ai-core")
+		const extension = vscode.extensions.getExtension(extensionId)
 		expect(extension).to.not.be.undefined
 
 		// Activate the extension if not already activated
-		if (!extension.isActive) {
+		if (extension && !extension.isActive) {
 			await extension.activate()
 		}
-		expect(extension.isActive).to.be.true
+		expect(extension?.isActive).to.be.true
 	})
 
 	it("should open sidebar view", async () => {
