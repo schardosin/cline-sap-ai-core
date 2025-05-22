@@ -128,7 +128,7 @@ export class SapAiCoreHandler implements ApiHandler {
 			"anthropic--claude-3-opus",
 		]
 
-		const openAIModels = ["gpt-4o", "gpt-4", "gpt-4o-mini", "o1", "o3-mini"]
+		const openAIModels = ["gpt-4o", "gpt-4", "gpt-4o-mini", "o1", "gpt-4.1", "gpt-4.1-nano", "o3-mini", "o3", "o4-mini"]
 
 		let url: string
 		let payload: any
@@ -175,7 +175,7 @@ export class SapAiCoreHandler implements ApiHandler {
 				stream_options: { include_usage: true },
 			}
 
-			if (model.id === "o1" || model.id === "o3-mini") {
+			if (["o1", "o3-mini", "o3", "o4-mini"].includes(model.id)) {
 				delete payload.max_tokens
 				delete payload.temperature
 			}
