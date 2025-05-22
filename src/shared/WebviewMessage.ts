@@ -40,6 +40,7 @@ export interface WebviewMessage {
 		| "taskCompletionViewChanges"
 		| "openExtensionSettings"
 		| "requestVsCodeLmModels"
+		| "requestSapAiCoreDeployments"
 		| "toggleToolAutoApprove"
 		| "toggleMcpServer"
 		| "getLatestState"
@@ -92,6 +93,14 @@ export interface WebviewMessage {
 	planActSeparateModelsSetting?: boolean
 	telemetrySetting?: TelemetrySetting
 	customInstructionsSetting?: string
+	// For SAP AI Core
+	sapAiCoreConfig?: {
+		clientId: string
+		clientSecret: string
+		baseUrl: string
+		tokenUrl: string
+		resourceGroup: string
+	}
 }
 
 export type ClineAskResponse = "yesButtonClicked" | "noButtonClicked" | "messageResponse"

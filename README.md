@@ -25,6 +25,14 @@ While the original Cline extension offers excellent functionality, the maintaine
 - o1
 - o3-mini
 
+
+## Model Availability
+
+Only models that meet **both** of the following criteria can be used:
+
+1. They are deployed in your Core AI Service instance.  
+2. They are included in the [Supported Models](#supported-models) list above.
+
 ## Important Note
 
 If you're not using SAP AI Core, we highly recommend using the official Cline extension. Our extension will periodically incorporate updates from the main Cline project, but may not always have the latest features immediately.

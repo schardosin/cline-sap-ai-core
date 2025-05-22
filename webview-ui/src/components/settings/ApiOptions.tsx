@@ -8,8 +8,8 @@ import {
 	VSCodeTextField,
 } from "@vscode/webview-ui-toolkit/react"
 import { Fragment, memo, useCallback, useEffect, useMemo, useState } from "react"
-import ThinkingBudgetSlider from "./ThinkingBudgetSlider"
 import { useEvent, useInterval } from "react-use"
+import ThinkingBudgetSlider from "./ThinkingBudgetSlider"
 import styled from "styled-components"
 import * as vscodemodels from "vscode"
 import {
@@ -92,6 +92,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 	const [ollamaModels, setOllamaModels] = useState<string[]>([])
 	const [lmStudioModels, setLmStudioModels] = useState<string[]>([])
 	const [vsCodeLmModels, setVsCodeLmModels] = useState<vscodemodels.LanguageModelChatSelector[]>([])
+	const [sapAiCoreDeployments, setSapAiCoreDeployments] = useState<Record<string, ModelInfo>>({})
 	const [anthropicBaseUrlSelected, setAnthropicBaseUrlSelected] = useState(!!apiConfiguration?.anthropicBaseUrl)
 	const [azureApiVersionSelected, setAzureApiVersionSelected] = useState(!!apiConfiguration?.azureApiVersion)
 	const [awsEndpointSelected, setAwsEndpointSelected] = useState(!!apiConfiguration?.awsBedrockEndpoint)
@@ -110,7 +111,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 		return normalizeApiConfiguration(apiConfiguration)
 	}, [apiConfiguration])
 
-	// Poll ollama/lmstudio models
+	// Poll ollama/lmstudio models and SAP AI Core deployments
 	const requestLocalModels = useCallback(() => {
 		if (selectedProvider === "ollama") {
 			vscode.postMessage({
@@ -124,10 +125,41 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 			})
 		} else if (selectedProvider === "vscode-lm") {
 			vscode.postMessage({ type: "requestVsCodeLmModels" })
+		} else if (
+			selectedProvider === "sapaicore" &&
+			apiConfiguration?.sapAiCoreClientId &&
+			apiConfiguration?.sapAiCoreClientSecret &&
+			apiConfiguration?.sapAiCoreBaseUrl &&
+			apiConfiguration?.sapAiCoreTokenUrl
+		) {
+			vscode.postMessage({
+				type: "requestSapAiCoreDeployments",
+				sapAiCoreConfig: {
+					clientId: apiConfiguration.sapAiCoreClientId,
+					clientSecret: apiConfiguration.sapAiCoreClientSecret,
+					baseUrl: apiConfiguration.sapAiCoreBaseUrl,
+					tokenUrl: apiConfiguration.sapAiCoreTokenUrl,
+					resourceGroup: apiConfiguration.sapAiResourceGroup || "default",
+				},
+			})
 		}
-	}, [selectedProvider, apiConfiguration?.ollamaBaseUrl, apiConfiguration?.lmStudioBaseUrl])
+	}, [
+		selectedProvider,
+		apiConfiguration?.ollamaBaseUrl,
+		apiConfiguration?.lmStudioBaseUrl,
+		apiConfiguration?.sapAiCoreClientId,
+		apiConfiguration?.sapAiCoreClientSecret,
+		apiConfiguration?.sapAiCoreBaseUrl,
+		apiConfiguration?.sapAiCoreTokenUrl,
+		apiConfiguration?.sapAiResourceGroup,
+	])
 	useEffect(() => {
-		if (selectedProvider === "ollama" || selectedProvider === "lmstudio" || selectedProvider === "vscode-lm") {
+		if (
+			selectedProvider === "ollama" ||
+			selectedProvider === "lmstudio" ||
+			selectedProvider === "vscode-lm" ||
+			selectedProvider === "sapaicore"
+		) {
 			requestLocalModels()
 		}
 	}, [selectedProvider, requestLocalModels])
@@ -144,6 +176,8 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 			setLmStudioModels(message.lmStudioModels)
 		} else if (message.type === "vsCodeLmModels" && message.vsCodeLmModels) {
 			setVsCodeLmModels(message.vsCodeLmModels)
+		} else if (message.type === "sapAiCoreDeployments" && message.sapAiCoreDeployments) {
+			setSapAiCoreDeployments(message.sapAiCoreDeployments)
 		}
 	}, [])
 	useEvent("message", handleMessage)
@@ -1517,7 +1551,20 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							{selectedProvider === "asksage" && createDropdown(askSageModels)}
 							{selectedProvider === "xai" && createDropdown(xaiModels)}
 							{selectedProvider === "sambanova" && createDropdown(sambanovaModels)}
-							{selectedProvider === "sapaicore" && createDropdown(sapAiCoreModels)}
+							{selectedProvider === "sapaicore" &&
+								createDropdown(
+									Object.keys(sapAiCoreDeployments).length > 0
+										? Object.keys(sapAiCoreDeployments)
+												.filter((key) => key in sapAiCoreModels)
+												.reduce(
+													(filtered, key) => {
+														filtered[key] = sapAiCoreDeployments[key]
+														return filtered
+													},
+													{} as Record<string, ModelInfo>,
+												)
+										: sapAiCoreModels,
+								)}
 						</DropdownContainer>
 
 						{((selectedProvider === "anthropic" && selectedModelId === "claude-3-7-sonnet-20250219") ||
