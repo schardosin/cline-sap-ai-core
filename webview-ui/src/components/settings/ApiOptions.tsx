@@ -1556,6 +1556,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 									Object.keys(sapAiCoreDeployments).length > 0
 										? Object.keys(sapAiCoreDeployments)
 												.filter((key) => key in sapAiCoreModels)
+												.sort()
 												.reduce(
 													(filtered, key) => {
 														filtered[key] = sapAiCoreDeployments[key]

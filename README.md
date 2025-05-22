@@ -22,8 +22,12 @@ While the original Cline extension offers excellent functionality, the maintaine
 - GPT-4o
 - GPT-4o Mini
 - GPT-4
+- GPT-4.1
+- GPT-4.1 Nano
 - o1
-- o3-mini
+- o3
+- o3 Mini
+- o4 Mini
 
 
 ## Model Availability
