@@ -29,7 +29,6 @@ export interface WebviewMessage {
 		| "updateSettings"
 		| "clearAllTaskHistory"
 		| "fetchUserCreditsData"
-		| "optionsResponse"
 		| "searchFiles"
 		| "grpc_request"
 		| "grpc_request_cancel"
