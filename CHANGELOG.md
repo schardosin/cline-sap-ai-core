@@ -1,5 +1,332 @@
 # Changelog
 
+## [3.17.8]
+
+-   Fix bug where terminal would get stuck and output "capture failure"
+
+## [3.17.7]
+
+-   Fix diff editing reliability for Claude 4 family models by adding constraints to prevent errors with large replacements
+
+## [3.17.6]
+
+-   Add Cerebras as a new API provider with 5 high-performance models including reasoning-capable models (Thanks @kevint-cerebras!)
+-   Add support for uploading various file types (XML, JSON, TXT, LOG, MD, DOCX, IPYNB, PDF) alongside images
+-   Add improved onboarding experience for new users with guided setup
+-   Add prompt cache indicator for Gemini 2.5 Flash models
+-   Update SambaNova provider with new model list and documentation links (Thanks @luisfucros!)
+-   Fix diff editing support for Claude 4 family of models
+-   Improve telemetry and analytics for better user experience insights
+
+## [3.17.5]
+
+-   Fix issue with Claude 4 models where after several conversation turns, it would start making invalid diff edits
+
+## [3.17.4]
+
+-   Fix thinking budget slider for Claude 4
+
+## [3.17.3]
+
+-   Fix diff edit errors with Claude 4 models
+
+## [3.17.2]
+
+-   Add support for Claude 4 models (Sonnet 4 and Opus 4) in AWS Bedrock and Vertex AI providers
+-   Add support for global workflows, allowing workflows to be shared across workspaces with local workflows taking precedence
+-   Fix settings page z-index UI issues that caused display problems
+-   Fix AWS Bedrock environment variable handling to properly restore process.env after API calls (Thanks @DaveFres!)
+
+## [3.17.1]
+
+-   Add prompt caching for Claude 4 models on Cline and OpenRouter providers
+-   Increase max tokens for Claude Opus 4 from 4096 to 8192
+
+## [3.17.0]
+
+-   Add support for Anthropic Claude Sonnet 4 and Claude Opus 4 in both Anthropic and Vertex providers
+-   Add integration with Nebius AI Studio as a new provider (Thanks @Aktsvigun!)
+-   Add custom highlight and hotkey suggestion when the assistant prompts to switch to Act mode
+-   Update settings page design, now split into tabs for easier navigation (Thanks Yellow Bat @dlab-anton, and Roo Team!)
+-   Fix MCP Server configuration bug
+-   Fix model listing for Requesty provider
+-   Move all advanced settings to settings page
+
+## [3.16.3]
+
+-   Add devstral-small-2505 to the Mistral model list, a new specialized coding model from Mistral AI (Thanks @BarreiroT!)
+-   Add documentation links to rules & workflows UI
+-   Add support for Streameable HTTP Transport for MCPs (Thanks @alejandropta!)
+-   Improve error handling for Mistral SDK API
+
+## [3.16.2]
+
+-   Add support for Gemini 2.5 Flash Preview 05-20 model to Vertex AI provider with massive 1M token context window (Thanks @omercelik!)
+-   Add keyboard shortcut (Cmd+') to quickly focus Cline from anywhere in VS Code
+-   Add lightbulb actions for selected text with options to "Add to Cline", "Explain with Cline", and "Improve with Cline"
+-   Automatically focus Cline window after extension updates
+
+## [3.16.1]
+
+-   Add Enable auto approve toggle switch, allowing users to easily turn auto-approve functionality on or off without losing their action settings
+-   Improve Gemini retry handling with better UI feedback, showing retry progress during API request attempts
+-   Fix memory leak issue that could occur during long sessions with multiple tasks
+-   Improve UI for Gemini model retry attempts with clearer status updates
+-   Fix quick actions functionality in auto-approve settings
+-   Update UI styling for auto-approve menu items to conserve space
+
+## [3.16.0]
+
+-   Add new workflow feature allowing users to create and manage workflow files that can be injected into conversations via slash commands
+-   Add collapsible recent task list, allowing users to hide their task history when sharing their screen (Thanks @cosmix!)
+-   Add global endpoint option for Vertex AI users, providing higher availability and reducing 429 errors (Thanks @soniqua!)
+-   Add detection for new users to display special components and guidance
+-   Add Tailwind CSS IntelliSense to the recommended extensions list
+-   Fix eternal loading states when the last message is a checkpoint (Thanks @BarreiroT!)
+-   Improve settings organization by migrating VSCode Advanced settings to Settings Webview
+
+## [3.15.5]
+
+-   Fix inefficient memory management in the task timeline
+-   Fix Gemini rate limitation response not being handled properly (Thanks @BarreiroT!)
+
+## [3.15.4]
+
+-   Add gemini model back to vertex provider
+-   Add gemini telemetry
+-   Add filtering for tasks tied to the current workspace
+
+## [3.15.3]
+
+-   Add Fireworks API Provider
+-   Fix minor visual issues with auto-approve menu
+-   Fix one instance of terminal not getting output
+-   Fix 'Chrome was launched but debug port is not responding' error
+
+## [3.15.2]
+
+-   Added details to auto approve menu and more sensible default controls
+-   Add detailed configuration options for LiteLLM provider
+-   Add webview telemetry for users who have opted in to telemetry
+-   Update Gemini in OpenRouter/Cline providers to use implicit caching
+-   Fix freezing issues during rendering of large streaming text
+-   Fix grey screen webview crashes by releasing memory after every diff edit
+-   Fix breaking out of diff auto-scroll
+-   Fix IME composition Enter auto‑sending edited message
+
+## [3.15.1]
+
+-   Fix bug where PowerShell commands weren't given enough time before giving up and showing an error
+
+## [3.15.0]
+
+-   Add Task Timeline visualization to tasks (Thanks eomcaleb!)
+-   Add cache to ui for OpenAi provider
+-   Add FeatureFlagProvider service for the Node.js extension side
+-   Add copy buttons to task header and assistant messages
+-   Add a more simplified home header was added
+-   Add ability to favorite a task, allowing it to be kept when clearing all tasks
+-   Add npm script for issue creation (Thanks DaveFres!)
+-   Add confirmation dialog to Delete All History button
+-   Add ability to allow the user to type their next message into the chat while Cline is taking action
+-   Add ability to generate commit message via cline (Thanks zapp88!)
+-   Add improvements to caching for gemini models on OpenRouter and Cline providers
+-   Add improvements to allow scrolling the file being edited.
+-   Add ui for windsurf and cursor rules
+-   Add mistral medium-3 model
+-   Add option to collect events to send them in a bundle to avoid sending too many events
+-   Add support to quote a previous message in chat
+-   Add support for Gemini Implicit Caching
+-   Add support for batch selection and deletion of tasks in history (Thanks danix800!)
+-   Update change suggested models
+-   Update fetch cache details from generation endpoint
+-   Update converted docs to Mintlify
+-   Update the isOminiModel to include o4-mini model (Thanks PeterDaveHello!)
+-   Update file size that can be read by Cline, allowing larger files
+-   Update defaults for bedrock API models (Thanks Watany!)
+-   Update to extend ReasoningEffort to non-o3-mini reasoning models for all providers (Thanks PeterDaveHello!)
+-   Update to give error when a user tries to upload an image larger than 7500x7500 pixels
+-   Update announcement so that previous updates are in a dropdown
+-   Update UI for auto approve with favorited settings
+-   Fix bug where certain terminal commands would lock you out of a task
+-   Fix only initialize posthog in the webview if the user has opted into telemetry
+-   Fix bug where autocapture was on for front-end telemetry
+-   Fix for markdown copy excessively escaping characters (Thanks weshoke!)
+-   Fix an issue where loading never finished when using an application inference profile for the model ID (Thanks WinterYukky!)
+
+## [3.14.1]
+
+-   Disables autocaptures when initializing feature flags
+
+## [3.14.0]
+
+-   Add support for custom model ID in AWS Bedrock provider, enabling use of Application Inference Profile (Thanks @clicube!)
+-   Add more robust caching & cache tracking for gemini & vertex providers
+-   Add support for LaTeX rendering
+-   Add support for custom API request timeout. Timeouts were 15-30s, but can now be configured via settings for OpenRouter/Cline & Ollama (Thanks @WingsDrafterwork!)
+-   Add truncation notice when truncating manually
+-   Add a timeout setting for the terminal connection, allowing users to set a time to wait for terminal startup
+-   Add copy button to code blocks
+-   Add copy button to markdown blocks (Thanks @weshoke!)
+-   Add checkpoints to more messages
+-   Add slash command to create a new rules file (/newrule)
+-   Add cache ui for open router and cline provider
+-   Add Amazon Nova Premier model to Bedrock (Thanks @watany!)
+-   Add support for cursorrules and windsurfrules
+-   Add support for batch history deletion (Thanks @danix800!)
+-   Improve Drag & Drop experience
+-   Create clinerules folder when creating new rule if it's needed
+-   Enable pricing calculation for gemini and vertex providers
+-   Refactor message handling to not show the MCP View of the server modal
+-   Migrate the addRemoteServer to protobus (Thanks @DaveFres!)
+-   Update task header to be expanded by default
+-   Update Gemini cache TTL time to 15 minutes
+-   Fix race condition in terminal command usage
+-   Fix to correctly handle `import.meta.url`, avoiding leading slash in pathname for Windows (Thanks @DaveFres!)
+-   Fix @withRetry() decoration syntax error when running extension locally (Thanks @DaveFres!)
+-   Fix for git commit mentions in repos with no git commits
+-   Fix cost calculation (Thanks @BarreiroT!)
+
+## [3.13.3]
+
+-   Add download counts to MCP marketplace items
+-   Add `/compact` command
+-   Add prompt caching to gemini models in cline / openrouter providers
+-   Add tooltips to bottom row menu
+
+## [3.13.2]
+
+-   Add Gemini 2.5 Flash model to Vertex and Gemini Providers (Thanks monotykamary!)
+-   Add Caching to gemini provider (Thanks arafatkatze!)
+-   Add thinking budget support to Gemini Models (Thanks monotykamary!)
+-   Add !include .file directive support for .clineignore (Thanks watany-dev!)
+-   Improve slash command functionality
+-   Improve prompting for new task tool
+-   Fix o1 temperature being passed to the azure api (Thanks treeleaves30760!)
+-   Fix to make "add new rule file" button functional
+-   Fix Ollama provider timeout, allowing for a larger loading time (Thanks suvarchal!)
+-   Fix Non-UTF-8 File Handling: Improve Encoding Detection to Prevent Garbled Text and Binary Misclassification (Thanks yt3trees!)
+-   Fix settings to not reset by changing providers
+-   Fix terminal outputs missing commas
+-   Fix terminal errors caused by starting non-alphanumeric outputs
+-   Fix auto approve settings becoming unset
+-   Fix Mermaid syntax error in documentation (Thanks tuki0918!)
+-   Remove supportsComputerUse restriction and support browser use through any model that supports images (Thanks arafatkatze!)
+
+## [3.13.1]
+
+-   Fix bug where task cancellation during thinking stream would result in error state
+
+## [3.13.0]
+
+-   Add Cline rules popover under the chat field, allowing you to easily add, enable & disable workspace level or global rule files
+-   Add new slash command menu letting you type “/“ to do quick actions like creating new tasks
+-   Add ability to edit past messages, with options to restore your workspace back to that point
+-   Allow sending a message when selecting an option provided by the question or plan tool
+-   Add command to jump to Cline's chat input
+-   Add support for OpenAI o3 & 4o-mini (Thanks @PeterDaveHello and @arafatkatze!)
+-   Add baseURL option for Google Gemini provider (Thanks @owengo and @olivierhub!)
+-   Add support for Azure's DeepSeek model. (Thanks @yt3trees!)
+-   Add ability for models that support it to receive image responses from MCP servers (Thanks @rikaaa0928!)
+-   Improve search and replace diff editing by making it more flexible with models that fail to follow structured output instructions. (Thanks @chi-cat!)
+-   Add detection of Ctrl+C termination in terminal, improving output reading issues
+-   Fix issue where some commands with large output would cause UI to freeze
+-   Fix token usage tracking issues with vertex provider (Thanks @mzsima!)
+-   Fix issue with xAI reasoning content not being parsed (Thanks @mrubens!)
+
+## [3.12.3]
+
+-   Add copy button to MermaidBlock component (Thanks @cacosub7!)
+-   Add the ability to fetch from global cline rules files
+-   Add icon to indicate when a file outside of the users workspace is edited
+
+## [3.12.2]
+
+-   Add gpt-4.1
+
+## [3.12.1]
+
+-   Use visual checkpoint indicator to make it clear when checkpoints are created
+-   Big shoutout to @samuel871211 for numerous code quality improvements, refactoring contributions, and webview performance improvements!
+-   Use improved context manager
+
+## [3.12.0]
+
+-   Add favorite toggles for models when using the Cline & OpenRouter providers
+-   Add auto-approve options for edits/reads outside of the workspace
+-   Improve diff editing animation for large files
+-   Add indicator showing number of diff edits when Cline edits a file
+-   Add streaming support and reasoning effort option to xAI's Grok 3 Mini
+-   Add settings button to MCP popover to easily modify installed servers
+-   Fix bug where browser tool actions would show unparsed results in the chat view
+-   Fix issue with new checkpoints popover hiding too quickly
+-   Fix duplicate checkpoints bug
+-   Improve Ollama provider with retry mechanism, timeout handling, and improved error handling (thanks suvarchal!)
+
+## [3.11.0]
+
+-   Redesign checkpoint UI to declutter chat view by using a subtle indicator line that expands to a popover on hover, with a new date indicator for when it was created
+-   Add support for xAI's provider's Grok 3 models
+-   Add more robust error tracking for users opted in to telemetry (thank you for helping us make Cline better!)
+
+## [3.10.1]
+
+-   Add CMD+' keyboard shortcut to add selected text to Cline
+-   Cline now auto focuses the text field when using 'Add to Cline' shortcut
+-   Add new 'Create New Task' tool to let Cline start a new task autonomously!
+-   Fix Mermaid diagram issues
+-   Fix Gemini provider cost calculation to take new tiered pricing structure into account
+
+## [3.10.0]
+
+-   Add setting to let browser tool use local Chrome via remote debugging, enabling session-based browsing. Replaces sessionless Chromium, unlocking debugging and productivity workflows tied to your real browser state.
+-   Add new auto-approve option to approve _ALL_ commands (use at your own risk!)
+-   Add modal in the chat area to more easily enable or disable MCP servers
+-   Add drag and drop of file/folders into cline chat (Thanks eljapi!)
+-   Add prompt caching for LiteLLM + Claude (Thanks sammcj!)
+-   Add Improved context management
+-   Fix MCP auto approve toggle issues being out of sync with settings
+
+## [3.9.2]
+
+-   Add recommended models for Cline provider
+-   Add ability to detect when user edits files manually so Cline knows to re-read, leading to reduced diff edit errors
+-   Add improvements to file mention searching for faster searching
+-   Add scoring logic to file mentions to sort and exclude results based on relevance
+-   Add Support for Bytedance Doubao (Thanks Tunixer!)
+-   Fix to prevent duplicate BOM (Thanks bamps53!)
+
+## [3.9.1]
+
+-   Add Gemini 2.5 Pro Preview 03-25 to Google Provider
+
+## [3.9.0]
+
+-   Add Enable extended thinking for LiteLLM provider (Thanks @jorgegarciarey!)
+-   Add a tab for configuring local MCP Servers
+-   Fix issue with DeepSeek API provider token counting + context management
+-   Fix issues with checkpoints hanging under certain conditions
+
+## [3.8.6]
+
+-   Add UI for adding remote servers
+-   Add Mentions Feature Guide and update related documentation
+-   Fix bug where menu would open in sidebar and open tab
+-   Fix issue with Cline accounts not showing user info in popout tabs
+-   Fix bug where menu buttons wouldn't open view in sidebar
+
+## [3.8.5]
+
+-   Add support for remote MCP Servers using SSE
+-   Add gemini-2.5-pro-exp-03-25 to Vertex AI (thanks @arri-cc!)
+-   Add access to history, mcp, and new task buttons in popout view
+-   Add task feedback telemetry (thumbs up/down on task completion)
+-   Add toggle disabled for remote servers
+-   Move the MCP Restart and Delete buttons and add an auto-approve all toggle
+-   Update Requestly UX for model selection (thanks @arafatkatze!)
+-   Add escape for html content for gemini when running commands
+-   Improve search and replace edit failure behaviors
+
 ## [3.8.4]
 
 -   Add Sambanova Deepseek-V3-0324
@@ -210,8 +537,8 @@
 ## [3.1.0]
 
 -   Added checkpoints: Snapshots of workspace are automatically created whenever Cline uses a tool
-    -   Compare changes: Hover over any tool use to see a diff between the snapshot and current workspace state
-    -   Restore options: Choose to restore just the task state, just the workspace files, or both
+-   Compare changes: Hover over any tool use to see a diff between the snapshot and current workspace state
+-   Restore options: Choose to restore just the task state, just the workspace files, or both
 -   New 'See new changes' button appears after task completion, providing an overview of all workspace changes
 -   Task header now shows disk space usage with a delete button to help manage snapshot storage
 
@@ -393,10 +720,10 @@
 ## [1.8.0]
 
 -   You can now use '@' in the textarea to add context!
-    -   @url: Paste in a URL for the extension to fetch and convert to markdown, useful when you want to give Claude the latest docs!
-    -   @problems: Add workspace errors and warnings for Claude to fix, no more back-and-forth about debugging
-    -   @file: Adds a file's contents so you don't have to waste API requests approving read file (+ type to search files)
-    -   @folder: Adds folder's files all at once to speed up your workflow even more
+-   @url: Paste in a URL for the extension to fetch and convert to markdown, useful when you want to give Claude the latest docs!
+-   @problems: Add workspace errors and warnings for Claude to fix, no more back-and-forth about debugging
+-   @file: Adds a file's contents so you don't have to waste API requests approving read file (+ type to search files)
+-   @folder: Adds folder's files all at once to speed up your workflow even more
 
 ## [1.7.0]
 
@@ -443,7 +770,7 @@
 -   Adds "Always allow read-only operations" setting to let Claude read files and view directories without needing approval (off by default)
 -   Implement sliding window context management to keep tasks going past 200k tokens
 -   Adds Google Cloud Vertex AI support and updates Claude 3.5 Sonnet max output to 8192 tokens for all providers.
--   Improves system prompt to gaurd against lazy edits (less "//rest of code here")
+-   Improves system prompt to guard against lazy edits (less "//rest of code here")
 
 ## [1.3.0]
 

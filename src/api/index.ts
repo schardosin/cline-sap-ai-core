@@ -14,14 +14,18 @@ import { ApiStream, ApiStreamUsageChunk } from "./transform/stream"
 import { DeepSeekHandler } from "./providers/deepseek"
 import { RequestyHandler } from "./providers/requesty"
 import { TogetherHandler } from "./providers/together"
+import { NebiusHandler } from "./providers/nebius"
 import { QwenHandler } from "./providers/qwen"
 import { MistralHandler } from "./providers/mistral"
+import { DoubaoHandler } from "./providers/doubao"
 import { VsCodeLmHandler } from "./providers/vscode-lm"
 import { ClineHandler } from "./providers/cline"
 import { LiteLlmHandler } from "./providers/litellm"
+import { FireworksHandler } from "./providers/fireworks"
 import { AskSageHandler } from "./providers/asksage"
 import { XAIHandler } from "./providers/xai"
 import { SambanovaHandler } from "./providers/sambanova"
+import { CerebrasHandler } from "./providers/cerebras"
 
 export interface ApiHandler {
 	createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream
@@ -58,10 +62,14 @@ export function buildApiHandler(configuration: ApiConfiguration): ApiHandler {
 			return new DeepSeekHandler(options)
 		case "requesty":
 			return new RequestyHandler(options)
+		case "fireworks":
+			return new FireworksHandler(options)
 		case "together":
 			return new TogetherHandler(options)
 		case "qwen":
 			return new QwenHandler(options)
+		case "doubao":
+			return new DoubaoHandler(options)
 		case "mistral":
 			return new MistralHandler(options)
 		case "vscode-lm":
@@ -70,12 +78,16 @@ export function buildApiHandler(configuration: ApiConfiguration): ApiHandler {
 			return new ClineHandler(options)
 		case "litellm":
 			return new LiteLlmHandler(options)
+		case "nebius":
+			return new NebiusHandler(options)
 		case "asksage":
 			return new AskSageHandler(options)
 		case "xai":
 			return new XAIHandler(options)
 		case "sambanova":
 			return new SambanovaHandler(options)
+		case "cerebras":
+			return new CerebrasHandler(options)
 		case "sapaicore":
 			return new SapAiCoreHandler(options)
 		default:

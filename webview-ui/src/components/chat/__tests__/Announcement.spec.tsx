@@ -1,10 +1,12 @@
+import React from "react"
+import type { ComponentProps } from "react"
 import { render, screen, fireEvent } from "@testing-library/react"
 import { describe, it, expect, vi } from "vitest"
 import Announcement from "../Announcement"
 
 vi.mock("@vscode/webview-ui-toolkit/react", () => ({
 	useTheme: () => ({ themeType: "light" }),
-	VSCodeButton: (props: any) => <button {...props}>{props.children}</button>,
+	VSCodeButton: (props: ComponentProps<"button">) => <button {...props}>{props.children}</button>,
 	VSCodeLink: ({ children }: { children: React.ReactNode }) => <a>{children}</a>,
 }))
 
@@ -18,22 +20,7 @@ describe("Announcement", () => {
 
 	it("calls hideAnnouncement when close button is clicked", () => {
 		render(<Announcement version="2.0.0" hideAnnouncement={hideAnnouncement} />)
-		fireEvent.click(screen.getByRole("button"))
+		fireEvent.click(screen.getByTestId("close-button"))
 		expect(hideAnnouncement).toHaveBeenCalled()
-	})
-
-	it("renders the mcp server improvements announcement", () => {
-		render(<Announcement version="2.0.0" hideAnnouncement={hideAnnouncement} />)
-		expect(screen.getByText(/MCP server improvements:/)).toBeInTheDocument()
-	})
-
-	it("renders the 'See new changes' button feature", () => {
-		render(<Announcement version="2.0.0" hideAnnouncement={hideAnnouncement} />)
-		expect(screen.getByText(/See it in action here./)).toBeInTheDocument()
-	})
-
-	it("renders the demo link", () => {
-		render(<Announcement version="2.0.0" hideAnnouncement={hideAnnouncement} />)
-		expect(screen.getByText(/See a demo here./)).toBeInTheDocument()
 	})
 })

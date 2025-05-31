@@ -1,12 +1,15 @@
 import { VSCodeButton, VSCodeDivider, VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 import { memo, useEffect, useState } from "react"
-import { useFirebaseAuth } from "../../context/FirebaseAuthContext"
-import { vscode } from "../../utils/vscode"
+import { useFirebaseAuth } from "@/context/FirebaseAuthContext"
+import { vscode } from "@/utils/vscode"
 import VSCodeButtonLink from "../common/VSCodeButtonLink"
 import ClineLogoWhite from "../../assets/ClineLogoWhite"
 import CountUp from "react-countup"
 import CreditsHistoryTable from "./CreditsHistoryTable"
-import { UsageTransaction, PaymentTransaction } from "../../../../src/shared/ClineAccount"
+import { UsageTransaction, PaymentTransaction } from "@shared/ClineAccount"
+import { useExtensionState } from "@/context/ExtensionStateContext"
+import { AccountServiceClient } from "@/services/grpc-client"
+import { EmptyRequest } from "@shared/proto/common"
 
 type AccountViewProps = {
 	onDone: () => void
@@ -29,7 +32,11 @@ const AccountView = ({ onDone }: AccountViewProps) => {
 }
 
 export const ClineAccountView = () => {
-	const { user, handleSignOut } = useFirebaseAuth()
+	const { user: firebaseUser, handleSignOut } = useFirebaseAuth()
+	const { userInfo, apiConfiguration } = useExtensionState()
+
+	let user = apiConfiguration?.clineApiKey ? firebaseUser || userInfo : undefined
+
 	const [balance, setBalance] = useState(0)
 	const [isLoading, setIsLoading] = useState(true)
 	const [usageData, setUsageData] = useState<UsageTransaction[]>([])
@@ -63,12 +70,14 @@ export const ClineAccountView = () => {
 	}, [user])
 
 	const handleLogin = () => {
-		vscode.postMessage({ type: "accountLoginClicked" })
+		AccountServiceClient.accountLoginClicked(EmptyRequest.create()).catch((err) =>
+			console.error("Failed to get login URL:", err),
+		)
 	}
 
 	const handleLogout = () => {
-		// First notify extension to clear API keys and state
-		vscode.postMessage({ type: "accountLogoutClicked" })
+		// Use gRPC client to notify extension to clear API keys and state
+		AccountServiceClient.accountLogoutClicked(EmptyRequest.create()).catch((err) => console.error("Failed to logout:", err))
 		// Then sign out of Firebase
 		handleSignOut()
 	}
