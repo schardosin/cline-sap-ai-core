@@ -165,6 +165,18 @@ export async function getAllExtensionState(context: vscode.ExtensionContext) {
 		enableCheckpointsSettingRaw,
 		mcpMarketplaceEnabledRaw,
 		globalWorkflowToggles,
+		sapAiCoreClientId,
+		sapAiCoreClientSecret,
+		sapAiCoreBaseUrl,
+		sapAiCoreTokenUrl,
+		sapAiResourceGroup,
+		sapAiCoreModelId,
+		previousModeSapAiCoreClientId,
+		previousModeSapAiCoreClientSecret,
+		previousModeSapAiCoreBaseUrl,
+		previousModeSapAiCoreTokenUrl,
+		previousModeSapAiResourceGroup,
+		previousModeSapAiCoreModelId,
 	] = await Promise.all([
 		getGlobalState(context, "isNewUser") as Promise<boolean | undefined>,
 		getGlobalState(context, "apiProvider") as Promise<ApiProvider | undefined>,
@@ -255,6 +267,18 @@ export async function getAllExtensionState(context: vscode.ExtensionContext) {
 		getGlobalState(context, "enableCheckpointsSetting") as Promise<boolean | undefined>,
 		getGlobalState(context, "mcpMarketplaceEnabled") as Promise<boolean | undefined>,
 		getGlobalState(context, "globalWorkflowToggles") as Promise<ClineRulesToggles | undefined>,
+		getSecret(context, "sapAiCoreClientId") as Promise<string | undefined>,
+		getSecret(context, "sapAiCoreClientSecret") as Promise<string | undefined>,
+		getGlobalState(context, "sapAiCoreBaseUrl") as Promise<string | undefined>,
+		getGlobalState(context, "sapAiCoreTokenUrl") as Promise<string | undefined>,
+		getGlobalState(context, "sapAiResourceGroup") as Promise<string | undefined>,
+		getGlobalState(context, "sapAiCoreModelId") as Promise<string | undefined>,
+		getGlobalState(context, "previousModeSapAiCoreClientId") as Promise<string | undefined>,
+		getGlobalState(context, "previousModeSapAiCoreClientSecret") as Promise<string | undefined>,
+		getGlobalState(context, "previousModeSapAiCoreBaseUrl") as Promise<string | undefined>,
+		getGlobalState(context, "previousModeSapAiCoreTokenUrl") as Promise<string | undefined>,
+		getGlobalState(context, "previousModeSapAiResourceGroup") as Promise<string | undefined>,
+		getGlobalState(context, "previousModeSapAiCoreModelId") as Promise<string | undefined>,
 		fetch,
 	])
 
@@ -363,6 +387,12 @@ export async function getAllExtensionState(context: vscode.ExtensionContext) {
 			nebiusApiKey,
 			favoritedModelIds,
 			requestTimeoutMs,
+			sapAiCoreClientId,
+			sapAiCoreClientSecret,
+			sapAiCoreBaseUrl,
+			sapAiCoreTokenUrl,
+			sapAiResourceGroup,
+			sapAiCoreModelId,
 		},
 		isNewUser: isNewUser ?? true,
 		lastShownAnnouncementId,
@@ -385,6 +415,12 @@ export async function getAllExtensionState(context: vscode.ExtensionContext) {
 		previousModeReasoningEffort,
 		previousModeAwsBedrockCustomSelected,
 		previousModeAwsBedrockCustomModelBaseId,
+		previousModeSapAiCoreClientId,
+		previousModeSapAiCoreClientSecret,
+		previousModeSapAiCoreBaseUrl,
+		previousModeSapAiCoreTokenUrl,
+		previousModeSapAiResourceGroup,
+		previousModeSapAiCoreModelId,
 		mcpMarketplaceEnabled: mcpMarketplaceEnabled,
 		telemetrySetting: telemetrySetting || "unset",
 		planActSeparateModelsSetting,
@@ -457,6 +493,12 @@ export async function updateApiConfiguration(context: vscode.ExtensionContext, a
 		cerebrasApiKey,
 		nebiusApiKey,
 		favoritedModelIds,
+		sapAiCoreClientId,
+		sapAiCoreClientSecret,
+		sapAiCoreBaseUrl,
+		sapAiCoreTokenUrl,
+		sapAiResourceGroup,
+		sapAiCoreModelId,
 	} = apiConfiguration
 	await updateGlobalState(context, "apiProvider", apiProvider)
 	await updateGlobalState(context, "apiModelId", apiModelId)
@@ -520,6 +562,12 @@ export async function updateApiConfiguration(context: vscode.ExtensionContext, a
 	await storeSecret(context, "nebiusApiKey", nebiusApiKey)
 	await updateGlobalState(context, "favoritedModelIds", favoritedModelIds)
 	await updateGlobalState(context, "requestTimeoutMs", apiConfiguration.requestTimeoutMs)
+	await storeSecret(context, "sapAiCoreClientId", sapAiCoreClientId)
+	await storeSecret(context, "sapAiCoreClientSecret", sapAiCoreClientSecret)
+	await updateGlobalState(context, "sapAiCoreBaseUrl", sapAiCoreBaseUrl)
+	await updateGlobalState(context, "sapAiCoreTokenUrl", sapAiCoreTokenUrl)
+	await updateGlobalState(context, "sapAiResourceGroup", sapAiResourceGroup)
+	await updateGlobalState(context, "sapAiCoreModelId", sapAiCoreModelId)
 }
 
 export async function resetExtensionState(context: vscode.ExtensionContext) {
