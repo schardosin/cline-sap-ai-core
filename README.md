@@ -12,6 +12,18 @@ While the original Cline extension offers excellent functionality, the maintaine
 - Access to a wide range of powerful language models
 - Tailored for SAP BTP users
 
+## Configuration: SAP AI Core Provider
+
+- From the list of `API Provider`s, select `SAP AI Core`
+- Configure authentication & inference parameters (subjective to your specific AI Core instance):
+  - `AI Core Client Id`
+  - `AI Core Client Secret`
+  - `AI Core Base URL` (e.g. `https://api.ai.prod.eu-central-1.aws.ml.hana.ondemand.com/v2`
+  - `AI Core Auth URL` (e.g. `https://XXX.authentication.eu10.hana.ondemand.com/oauth/token`)
+  - `AI Core Resource Group` (typically `default`)
+ 
+> NOTE: Don't forget to append `v2` to the base URL and `/oauth/token` to the auth URL. May lead to HTTP 403 responses otherwise.
+
 ## Supported Models
 
 - Claude 3.7 Sonnet
