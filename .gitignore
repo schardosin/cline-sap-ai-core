@@ -1,6 +1,6 @@
 out
-coverage
 dist
+dist-standalone
 node_modules
 tmp
 .vscode-test/
@@ -11,7 +11,27 @@ tmp
 pnpm-lock.yaml
 
 .clineignore
+<<<<<<< HEAD
 
 .idea
 .history
 **/.lh
+=======
+.venv
+.actrc
+
+# Ignore coverage directories and files
+coverage
+# But don't ignore the coverage scripts in .github/scripts/
+!.github/scripts/coverage/
+
+*evals.env
+
+# Generated proto files
+src/shared/proto/*.ts
+src/core/controller/*/methods.ts
+src/core/controller/*/index.ts
+src/core/controller/grpc-service-config.ts
+webview-ui/src/services/grpc-client.ts
+src/standalone/server-setup.ts
+>>>>>>> v3.17.8
