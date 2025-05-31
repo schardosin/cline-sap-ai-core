@@ -10,6 +10,7 @@ import {
 } from "@vscode/webview-ui-toolkit/react"
 import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useEvent, useInterval } from "react-use"
+import { ExtensionMessage } from "@shared/ExtensionMessage"
 import ThinkingBudgetSlider from "./ThinkingBudgetSlider"
 import styled from "styled-components"
 import * as vscodemodels from "vscode"
@@ -153,6 +154,27 @@ const ApiOptions = ({
 	const [lmStudioModels, setLmStudioModels] = useState<string[]>([])
 	const [vsCodeLmModels, setVsCodeLmModels] = useState<vscodemodels.LanguageModelChatSelector[]>([])
 	const [sapAiCoreDeployments, setSapAiCoreDeployments] = useState<Record<string, ModelInfo>>({})
+
+	const { selectedProvider, selectedModelId, selectedModelInfo } = useMemo(() => {
+		return normalizeApiConfiguration(apiConfiguration)
+	}, [apiConfiguration])
+
+	useEffect(() => {
+		if (selectedProvider === "sapaicore") {
+			vscode.postMessage({ type: "requestSapAiCoreDeployments" })
+		}
+	}, [selectedProvider])
+
+	useEvent("message", (event: MessageEvent<ExtensionMessage>) => {
+		if (event.data.type === "sapAiCoreDeployments") {
+			if (event.data.sapAiCoreDeployments) {
+				console.log("Received SAP AI Core deployments:", event.data.sapAiCoreDeployments)
+				setSapAiCoreDeployments(event.data.sapAiCoreDeployments)
+			} else if (event.data.error) {
+				console.error("Error fetching SAP AI Core deployments:", event.data.error)
+			}
+		}
+	})
 	const [anthropicBaseUrlSelected, setAnthropicBaseUrlSelected] = useState(!!apiConfiguration?.anthropicBaseUrl)
 	const [geminiBaseUrlSelected, setGeminiBaseUrlSelected] = useState(!!apiConfiguration?.geminiBaseUrl)
 	const [azureApiVersionSelected, setAzureApiVersionSelected] = useState(!!apiConfiguration?.azureApiVersion)
@@ -184,10 +206,6 @@ const ApiOptions = ({
 			})
 		}
 	}
-
-	const { selectedProvider, selectedModelId, selectedModelInfo } = useMemo(() => {
-		return normalizeApiConfiguration(apiConfiguration)
-	}, [apiConfiguration])
 
 	// Poll ollama/lmstudio models
 	const requestLocalModels = useCallback(async () => {

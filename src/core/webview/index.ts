@@ -379,11 +379,33 @@ export class WebviewProvider implements vscode.WebviewViewProvider {
 	private setWebviewMessageListener(webview: vscode.Webview) {
 		webview.onDidReceiveMessage(
 			async (message) => {
-				this.controller.handleWebviewMessage(message)
+				if (message.type === "requestSapAiCoreDeployments") {
+					try {
+						const deployments = await this.handleSapAiCoreDeploymentsRequest()
+						await this.controller.postMessageToWebview({
+							type: "sapAiCoreDeployments",
+							sapAiCoreDeployments: deployments,
+						})
+					} catch (error) {
+						console.error("Error handling SAP AI Core deployments request:", error)
+						await this.controller.postMessageToWebview({
+							type: "sapAiCoreDeployments",
+							error: "Failed to fetch SAP AI Core deployments",
+						})
+					}
+				} else {
+					this.controller.handleWebviewMessage(message)
+				}
 			},
 			null,
 			this.disposables,
 		)
+	}
+
+	private async postMessageToWebview(message: any) {
+		if (this.view?.webview) {
+			await this.view.webview.postMessage(message)
+		}
 	}
 
 	private async handleSapAiCoreDeploymentsRequest() {
