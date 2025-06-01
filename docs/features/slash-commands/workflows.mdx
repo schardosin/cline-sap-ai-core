@@ -22,10 +22,10 @@ Workflows live alongside [Cline Rules](/features/cline-rules). Creating one is s
 
 The real power comes from how you structure your workflow files. You can:
 
-- Leverage Cline's [built-in tools](/exploring-clines-tools/cline-tools-guide) like `ask_followup_question`, `read_file`, `search_files`, and `new_task`
-- Use command-line tools you already have installed like `gh` or `docker`
-- Reference external [MCP tool calls](/mcp/mcp-overview) like Slack or Whatsapp
-- Chain multiple actions together in a specific sequence
+-   Leverage Cline's [built-in tools](/exploring-clines-tools/cline-tools-guide) like `ask_followup_question`, `read_file`, `search_files`, and `new_task`
+-   Use command-line tools you already have installed like `gh` or `docker`
+-   Reference external [MCP tool calls](/mcp/mcp-overview) like Slack or Whatsapp
+-   Chain multiple actions together in a specific sequence
 
 ## Real-world Example
 
@@ -418,12 +418,12 @@ When I get a new PR to review, I used to manually gather context: checking the P
 
 My workflow uses the `gh` command-line tool and Cline's built in `ask_followup_question` to:
 
-- Pull the PR description and comments
-- Examine the diff
-- Check surrounding files for context
-- Analyze potential issues
-- Asks me if it's cool approve it if everything looks good, with justification for why it should be approved
-- If I say "yes," Cline automatically approves the PR with the `gh` command
+-   Pull the PR description and comments
+-   Examine the diff
+-   Check surrounding files for context
+-   Analyze potential issues
+-   Asks me if it's cool approve it if everything looks good, with justification for why it should be approved
+-   If I say "yes," Cline automatically approves the PR with the `gh` command
 
 This has taken my PR review process from a manual, multi-step operation to a single command that gives me everything I need to make an informed decision.
 
@@ -433,10 +433,10 @@ This has taken my PR review process from a manual, multi-step operation to a sin
 
 The beauty of workflows is they're completely customizable to your needs. You might create workflows for all kinds of repetitive tasks:
 
-- For releases, you could have a workflow that grabs all merged PRs, builds a changelog, and handles version bumps.
-- Setting up new projects is perfect for workflows. Just run one command to create your folder structure, install dependencies, and set up configs.
-- Need to create a report? Create a workflow that grabs stats from different sources and formats them exactly how you like. You can even visualize them with a charting library and then make a presentation out of it with a library like [slidev](https://sli.dev/).
-- You can even use workflows to draft messages to your team using an MCP server like Slack or Whatsapp after you submit a PR.
+-   For releases, you could have a workflow that grabs all merged PRs, builds a changelog, and handles version bumps.
+-   Setting up new projects is perfect for workflows. Just run one command to create your folder structure, install dependencies, and set up configs.
+-   Need to create a report? Create a workflow that grabs stats from different sources and formats them exactly how you like. You can even visualize them with a charting library and then make a presentation out of it with a library like [slidev](https://sli.dev/).
+-   You can even use workflows to draft messages to your team using an MCP server like Slack or Whatsapp after you submit a PR.
 
 With Workflows, your imagination is the limit. The true potential comes from spotting those annoying repetitive tasks you do all the time.
 
