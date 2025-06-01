@@ -58,13 +58,7 @@
 					"id": "cline-for-sap-ai-core-ActivityBar",
 					"title": "Cline for SAP AI Core (Ctrl+')",
 					"icon": "assets/icons/icon.svg",
-					"when": "isWindows"
-				},
-				{
-					"id": "cline-for-sap-ai-core-ActivityBar",
-					"title": "Cline for SAP AI Core (Ctrl+')",
-					"icon": "assets/icons/icon.svg",
-					"when": "isLinux || !isMac && !isWindows"
+					"when": "!isMac"
 				}
 			]
 		},
