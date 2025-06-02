@@ -14,6 +14,7 @@ export interface WebviewMessage {
 		| "condense"
 		| "reportBug"
 		| "requestVsCodeLmModels"
+		| "requestSapAiCoreDeployments"
 		| "authStateChanged"
 		| "fetchMcpMarketplace"
 		| "searchCommits"
@@ -55,6 +56,13 @@ export interface WebviewMessage {
 	mcpMarketplaceEnabled?: boolean
 	telemetrySetting?: TelemetrySetting
 	customInstructionsSetting?: string
+	sapAiCoreConfig?: {
+		clientId: string
+		clientSecret: string
+		baseUrl: string
+		tokenUrl: string
+		resourceGroup: string
+	}
 	mentionsRequestId?: string
 	query?: string
 	// For toggleFavoriteModel
