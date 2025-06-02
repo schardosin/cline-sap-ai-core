@@ -99,7 +99,7 @@ export type GlobalStateKey =
 	| "previousModeSapAiCoreClientSecret"
 	| "previousModeSapAiCoreBaseUrl"
 	| "previousModeSapAiCoreTokenUrl"
-	| "previousModeSapAiResourceGroup"
+	| "previousModeSapAiCoreResourceGroup"
 	| "previousModeSapAiCoreModelId"
 	| "sapAiCoreTokenUrl"
 	| "sapAiCoreBaseUrl"
