@@ -1,3 +1,62 @@
+# Cline for SAP AI Core
+
+This extension is an adaptation of the original Cline extension, specifically tailored to add support for SAP AI Core. It enables users to leverage the capabilities of various advanced language models through their SAP Business Technology Platform (BTP) accounts.
+
+## Why a Separate Extension?
+
+While the original Cline extension offers excellent functionality, the maintainers preferred not to incorporate support for external providers they don't know or have direct access to. However, we recognized the significant benefits this integration could bring to the SAP community, particularly for those maintaining business applications with access to SAP BTP and SAP AI Core.
+
+## Key Features
+
+- Seamless integration with SAP AI Core
+- Access to a wide range of powerful language models
+- Tailored for SAP BTP users
+
+## Configuration: SAP AI Core Provider
+
+- From the list of `API Provider`s, select `SAP AI Core`
+- Configure authentication & inference parameters (subjective to your specific AI Core instance):
+  - `AI Core Client Id`
+  - `AI Core Client Secret`
+  - `AI Core Base URL` (e.g. `https://api.ai.prod.eu-central-1.aws.ml.hana.ondemand.com/v2`
+  - `AI Core Auth URL` (e.g. `https://XXX.authentication.eu10.hana.ondemand.com/oauth/token`)
+  - `AI Core Resource Group` (typically `default`)
+ 
+> NOTE: Don't forget to append `v2` to the base URL and `/oauth/token` to the auth URL. May lead to HTTP 403 responses otherwise.
+
+## Supported Models
+
+- Claude 3.7 Sonnet
+- Claude 3.5 Sonnet
+- Claude 3 Sonnet 
+- Claude 3 Haiku
+- Claude 3 Opus
+- GPT-4o
+- GPT-4o Mini
+- GPT-4
+- GPT-4.1
+- GPT-4.1 Nano
+- o1
+- o3
+- o3 Mini
+- o4 Mini
+
+
+## Model Availability
+
+Only models that meet **both** of the following criteria can be used:
+
+1. They are deployed in your Core AI Service instance.  
+2. They are included in the [Supported Models](#supported-models) list above.
+
+## Important Note
+
+If you're not using SAP AI Core, we highly recommend using the official Cline extension. Our extension will periodically incorporate updates from the main Cline project, but may not always have the latest features immediately.
+
+## Acknowledgments
+
+We extend our heartfelt gratitude to the Cline team for their outstanding work and contributions to the developer community. Their original extension serves as the foundation for this adaptation, and we're thankful for their efforts in creating such a valuable tool.
+
 <div align="center"><sub>
 English | <a href="https://github.com/cline/cline/blob/main/locales/es/README.md" target="_blank">Español</a> | <a href="https://github.com/cline/cline/blob/main/locales/de/README.md" target="_blank">Deutsch</a> | <a href="https://github.com/cline/cline/blob/main/locales/ja/README.md" target="_blank">日本語</a> | <a href="https://github.com/cline/cline/blob/main/locales/zh-cn/README.md" target="_blank">简体中文</a> | <a href="https://github.com/cline/cline/blob/main/locales/zh-tw/README.md" target="_blank">繁體中文</a> | <a href="https://github.com/cline/cline/blob/main/locales/ko/README.md" target="_blank">한국어</a>
 </sub></div>
